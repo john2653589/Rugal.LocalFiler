@@ -496,6 +496,26 @@ namespace Rugal.LocalFiler.Service
             var IsAnyFile = Info.Files.Any();
             return IsAnyFile;
         }
+        public bool DeleteFolder(PathConfig Config, bool IsDeleteForce = false)
+        {
+            var FullFolderPath = CombineRootPaths(Config);
+            try
+            {
+                Directory.Delete(FullFolderPath, IsDeleteForce);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+        }
+        public bool DeleteFolder(Action<PathConfig> ConfigFunc, bool IsDeleteForce = false)
+        {
+            var Config = new PathConfig();
+            ConfigFunc.Invoke(Config);
+            return DeleteFolder(Config, IsDeleteForce);
+        }
         #endregion
 
         #endregion
