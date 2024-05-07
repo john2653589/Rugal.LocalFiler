@@ -151,7 +151,7 @@ namespace Rugal.LocalFiler.Service
         #endregion
 
         #region File Delete
-        public virtual bool DeleteFile(IEnumerable<string> FileNames, Action<ReadConfig> ConfigFunc = null)
+        public virtual bool DeleteFiles(IEnumerable<string> FileNames, Action<ReadConfig> ConfigFunc = null)
         {
             var IsDelete = true;
             foreach (var Item in FileNames)
@@ -162,7 +162,7 @@ namespace Rugal.LocalFiler.Service
             }
             return IsDelete;
         }
-        public virtual bool DeleteFile<TData>(IEnumerable<string> FileNames, Action<ReadConfig> ConfigFunc = null)
+        public virtual bool DeleteFiles<TData>(IEnumerable<string> FileNames, Action<ReadConfig> ConfigFunc = null)
         {
             var IsDelete = true;
             foreach (var Item in FileNames)
@@ -171,6 +171,19 @@ namespace Rugal.LocalFiler.Service
                 ConfigFunc?.Invoke(Config);
                 Config.AddPath(typeof(TData).Name);
 
+                IsDelete = IsDelete && DeleteFile(Config);
+            }
+            return IsDelete;
+        }
+        public virtual bool DeleteFiles<TData, TColumn>(IEnumerable<TData> FileDatas, Func<TData, TColumn> GetColumnFunc, Action<ReadConfig> ConfigFunc = null)
+        {
+            var IsDelete = true;
+            foreach (var Item in FileDatas)
+            {
+                var GetFileName = GetColumnFunc(Item);
+                var Config = new ReadConfig(GetFileName);
+                ConfigFunc?.Invoke(Config);
+                Config.AddPath(typeof(TData).Name);
                 IsDelete = IsDelete && DeleteFile(Config);
             }
             return IsDelete;
@@ -189,19 +202,6 @@ namespace Rugal.LocalFiler.Service
             Config.AddPath(typeof(TData).Name);
 
             var IsDelete = DeleteFile(Config);
-            return IsDelete;
-        }
-        public virtual bool DeleteFile<TData, TColumn>(IEnumerable<TData> FileDatas, Func<TData, TColumn> GetColumnFunc, Action<ReadConfig> ConfigFunc = null)
-        {
-            var IsDelete = true;
-            foreach (var Item in FileDatas)
-            {
-                var GetFileName = GetColumnFunc(Item);
-                var Config = new ReadConfig(GetFileName);
-                ConfigFunc?.Invoke(Config);
-                Config.AddPath(typeof(TData).Name);
-                IsDelete = IsDelete && DeleteFile(Config);
-            }
             return IsDelete;
         }
         public bool DeleteFile(ReadConfig Config)
