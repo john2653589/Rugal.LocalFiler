@@ -206,7 +206,7 @@ namespace Rugal.LocalFiler.Service
         }
         public bool DeleteFile(ReadConfig Config)
         {
-            if (!IsExist(Config, out var FullFileName))
+            if (!IsFileExist(Config, out var FullFileName))
                 return false;
 
             File.Delete(FullFileName);
@@ -325,7 +325,7 @@ namespace Rugal.LocalFiler.Service
         #endregion
 
         #region File Exist
-        public virtual bool IsExist(ReadConfig Config, out string FullFileName)
+        public virtual bool IsFileExist(ReadConfig Config, out string FullFileName)
         {
             FullFileName = null;
             if (Config.FileName is null)
@@ -337,26 +337,26 @@ namespace Rugal.LocalFiler.Service
 
             return true;
         }
-        public virtual bool IsExist(ReadConfig Config) => IsExist(Config, out _);
-        public virtual bool IsExist(ReadConfig Config, Action<ReadConfig> ConfigFunc, out string FullFileName)
+        public virtual bool IsFileExist(ReadConfig Config) => IsFileExist(Config, out _);
+        public virtual bool IsFileExist(ReadConfig Config, Action<ReadConfig> ConfigFunc, out string FullFileName)
         {
             ConfigFunc?.Invoke(Config);
-            return IsExist(Config, out FullFileName);
+            return IsFileExist(Config, out FullFileName);
         }
-        public virtual bool IsExist(ReadConfig Config, Action<ReadConfig> ConfigFunc) => IsExist(Config, ConfigFunc, out _);
-        public virtual bool IsExist(object FileName, Action<ReadConfig> ConfigFunc, out string FullFileName)
+        public virtual bool IsFileExist(ReadConfig Config, Action<ReadConfig> ConfigFunc) => IsFileExist(Config, ConfigFunc, out _);
+        public virtual bool IsFileExist(object FileName, Action<ReadConfig> ConfigFunc, out string FullFileName)
         {
             var Config = new ReadConfig(FileName);
             ConfigFunc?.Invoke(Config);
-            return IsExist(Config, out FullFileName);
+            return IsFileExist(Config, out FullFileName);
         }
-        public virtual bool IsExist(object FileName, Action<ReadConfig> ConfigFunc) => IsExist(FileName, ConfigFunc, out _);
-        public virtual bool IsExist(object FileName, out string FullFileName)
+        public virtual bool IsFileExist(object FileName, Action<ReadConfig> ConfigFunc) => IsFileExist(FileName, ConfigFunc, out _);
+        public virtual bool IsFileExist(object FileName, out string FullFileName)
         {
             var Config = new ReadConfig(FileName);
-            return IsExist(Config, out FullFileName);
+            return IsFileExist(Config, out FullFileName);
         }
-        public virtual bool IsExist(object FileName) => IsExist(FileName, out _);
+        public virtual bool IsFileExist(object FileName) => IsFileExist(FileName, out _);
         #endregion
 
         #region Temp File Check
@@ -478,6 +478,23 @@ namespace Rugal.LocalFiler.Service
                 .FirstOrDefault(Item => Item.FileName == Config.FileName);
 
             return FindFile;
+        }
+        #endregion
+
+        #region Folder Access
+        public bool IsFolderExist(PathConfig Config)
+        {
+            var IsExist = InfoFolder(Config).IsExist;
+            return IsExist;
+        }
+        public bool IsFolderAnyFile(PathConfig Config)
+        {
+            var Info = InfoFolder(Config);
+            if (!Info.IsExist)
+                return false;
+
+            var IsAnyFile = Info.Files.Any();
+            return IsAnyFile;
         }
         #endregion
 
